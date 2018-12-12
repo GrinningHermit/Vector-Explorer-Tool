@@ -1,9 +1,9 @@
 # Vector-Explorer-Tool
-Interface exposing functionality of the robot Cozmo from Anki
+Interface exposing functionality of the robot Vector from Anki
 ---
 This tool gives control over Vector. You can look through his camera while using keyboard buttons to control him. It also lists and plays all built-in animations.
 
-This is a conversion of the Cozmo Explorer Tool for the newer Anki robot Vector. In its current state it is still very basic and not all functionalities from the Cozmo variant are copied (event monitor, triggers and behaviors are not included). This version is aimed at the alpha release of the Vector SDK and it may change completely over time.
+This is a conversion of the Cozmo Explorer Tool (https://github.com/GrinningHermit/Cozmo-Explorer-Tool) for the newer Anki robot Vector. In its current state it is still very basic and not all functionalities from the Cozmo variant are copied (event monitor, triggers and behaviors are not included). This version is aimed at the alpha release of the Vector SDK and it may change completely over time.
 
 ![Cozmo-Explorer-Tool](static/img/vector-explorer-tool-v0.1.jpg)
 
