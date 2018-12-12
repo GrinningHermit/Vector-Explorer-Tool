@@ -40,7 +40,7 @@ Installation notes
 
 Known issues
 -
-- Event monitor, triggers and behaviors are disabled due to needed research time and SDK differences compared to the Cozmo SDK.
+- Event monitor, triggers and behaviors (features of the Cozmo explorer tool) are disabled due to needed research time and SDK differences compared to the Cozmo SDK.
 - IR light is something Vector does not have and needs to be removed in a future release. 
 - Free play button needs to be fixed.
 - The python module flask-socket-io currently has no function without the event monitor
