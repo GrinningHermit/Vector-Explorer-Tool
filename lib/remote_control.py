@@ -174,8 +174,7 @@ def handle_key_event(key_request, is_key_down):
     global remote_control_vector
     message = json.loads(key_request.data.decode("utf-8"))
     if remote_control_vector:
-        remote_control_vector.handle_key(key_code=(message['keyCode']), is_shift_down=message['hasShift'],
-                                                   is_alt_down=message['hasAlt'], is_key_down=is_key_down)
+        remote_control_vector.handle_key(key_code=(message['keyCode']), is_shift_down=message['hasShift'], is_alt_down=message['hasAlt'], is_key_down=is_key_down)
     return ""
 
 @remote_control.route('/keydown', methods=['POST'])
