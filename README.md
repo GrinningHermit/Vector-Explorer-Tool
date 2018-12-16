@@ -40,6 +40,10 @@ Installation notes
 - Running 'vector-explorer-tool.py' will attempt to open a browser window at 127.0.0.1:5000. This is similar to  'remote_control.py' from the Vector SDK examples.
 - Game controller compatibility can be tested at http://html5gamepad.com/ (tested with Xbox 360 usb controller)
 
+Compatibility
+-
+- Vector SDK 0.5.1 (alpha)
+
 Known issues
 -
 - Event monitor, triggers and behaviors (features of the Cozmo explorer tool) are disabled due to needed research time and SDK differences compared to the Cozmo SDK.
