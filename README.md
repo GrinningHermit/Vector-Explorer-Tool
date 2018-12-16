@@ -11,7 +11,8 @@ What does it do exactly?
 -
 Running the script 'explorer_tool.py' in python will open a web page. It is divided in 3 sections:
 
-1. ROBOT CAMERA AND CONTROL: A constant camera feed is visible. While mousing over this area, controls for Vector are also visible, indicating how to control Vector with the keyboard or game controller. It's also possible to make the feed full screen. The game controller left stick controls movement, the right stick controls the head and arm. Left stick controls movement. Right stick up/down moves head up/down. Right stick left/right moves arm up/down. Both lower trigger buttons work like SHIFT (let Vector move faster) while pressed, upper trigger buttons work like ALT (let Vector move slower).
+1. ROBOT CAMERA AND CONTROL: A constant camera feed is visible. While mousing over this area, controls for Vector are also visible, indicating how to control Vector with the keyboard or game controller. It's also possible to make the feed full screen. 
+The game controller left stick controls movement, the right stick controls the head and arm. Left stick controls movement. Right stick up/down moves head up/down. Right stick left/right moves arm up/down. Both lower trigger buttons work like SHIFT (let Vector move faster) while pressed, upper trigger buttons work like ALT (let Vector move slower).
 
 2. ANIMATIONS: A user can click the play button of a listed animation and Vector will execute it. It is also possible to search for a particular animation and buttons are provided to group animations based on their naming convention. 
 
