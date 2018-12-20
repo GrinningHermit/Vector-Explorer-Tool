@@ -2,8 +2,11 @@ import io
 import json
 import sys
 import time
+import datetime
 import logging
 import random
+import queue
+from lib.event_monitor import monitor
 from lib import flask_socket_helpers
 from lib.animate import animate, init_animate
 from lib.viewer import viewer, activate_viewer_if_enabled, create_default_image
@@ -18,9 +21,12 @@ app = Flask(__name__)
 app.register_blueprint(animate)
 app.register_blueprint(viewer)
 app.register_blueprint(remote_control)
+
 async_mode = 'threading'
+thread = None
 rndID = random.randrange(1000000000, 9999999999)
 animation_list = ''
+q = queue.Queue()
 active_viewer = False
 _default_camera_image = create_default_image(640, 360)
 
@@ -48,6 +54,34 @@ except ImportError:
     sys.exit("Cannot import anki_vector: Do `pip3 install -e .` in the vector home folder to install")
 
 
+if flask_socketio_installed:
+    socketio = SocketIO(app, async_mode=async_mode)
+
+    # Functions for event monitoring
+    def print_queue(qval):
+        while qval.qsize() > 0:
+            timestamp = '{:%H:%M:%S.%f}'.format(datetime.datetime.now())
+            message = qval.get()
+            print(timestamp + ' -> ' + message)
+            socketio.emit('my_response',
+                {'data': message, 'type': 'event', 'time': timestamp})
+
+
+    def background_thread(qval):
+        while True:
+            if not qval.empty():
+                print_queue(qval)
+            socketio.sleep(.1)
+
+
+    @socketio.on('connect')
+    def test_connect():
+        global thread
+        if thread is None:
+            thread = socketio.start_background_task(background_thread, q)
+        emit('my_response', {'data': 'SERVER: websocket connection established. Displaying events, like  Vector seeing a cube or picking him up.'})
+
+
 def start_server():
     if flask_socketio_installed:
         flask_socket_helpers.run_flask(socketio, app)
@@ -69,9 +103,10 @@ def run():
         global animation_list
         global active_viewer
 
-        animation_list = init_animate(robot)
-        active_viewer = activate_viewer_if_enabled(robot)
-        activate_controls(robot)
+        animation_list = init_animate(robot) # list of animations
+        active_viewer = activate_viewer_if_enabled(robot) # camera and keyboard controls
+        monitor(robot, q) # event monitor
+        activate_controls(robot) # game controller
         start_server()
 
 

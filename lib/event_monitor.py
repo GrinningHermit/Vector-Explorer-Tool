@@ -16,7 +16,7 @@ Edited by: GrinningHermit
 import re
 import threading
 import time
-import cozmo
+import anki_vector
 
 robot = None
 q = None # dependency on queue variable for messaging instead of printing to event-content directly
@@ -33,60 +33,157 @@ class CheckState (threading.Thread):
     def run(self):
         delay = 10
         is_picked_up = False
-        is_falling = False
+        is_being_held = False
+        is_cliff_detected = False
         is_on_charger = False
+        is_charging = False
+        is_carrying_block = False
+        is_button_pressed = False
+        is_falling = False
+        is_docking_to_marker = False
+        is_in_calm_power_mode = False
+        is_pathing = False
+
         while thread_running:
-            if robot.is_picked_up:
-                delay = 0
+
+            if robot.status.is_picked_up:
                 if not is_picked_up:
                     is_picked_up = True
-                    msg = 'cozmo.robot.Robot.is_pickup_up: True'
+                    msg = 'Picked up'
                     self.q.put(msg)
-            elif is_picked_up and delay > 9:
-                is_picked_up = False
-                msg = 'cozmo.robot.Robot.is_pickup_up: False'
+            elif not robot.status.is_picked_up:
+                if is_picked_up:
+                    is_picked_up = False
+                    msg = 'No longer picked up'
+                    self.q.put(msg)
+
+            if robot.status.is_being_held:
+                if not is_being_held:
+                    is_being_held = True
+                    msg = 'Being held'
+                    self.q.put(msg)
+            elif not robot.status.is_being_held:
+                if is_being_held:
+                    is_being_held = False
+                    msg = 'No longer held'
+                    self.q.put(msg)
+
+            if robot.status.is_cliff_detected and not (robot.status.is_being_held or robot.status.is_picked_up):
+                if not is_cliff_detected:
+                    is_cliff_detected = True
+                    msg = 'Cliff detected'
+                    self.q.put(msg)
+            elif not robot.status.is_cliff_detected and not (robot.status.is_being_held or robot.status.is_picked_up):
+                if is_cliff_detected:
+                    is_cliff_detected = False
+                    msg = 'Moved away from detected cliff'
+                    self.q.put(msg)
+
+            if robot.status.is_on_charger:
+                if not is_on_charger:
+                    is_on_charger = True
+                    msg = 'On charger'
+                    self.q.put(msg)
+            elif not robot.status.is_on_charger:
+                if is_on_charger:
+                    is_on_charger = False
+                    msg = 'Moved away from charger'
+                    self.q.put(msg)
+
+            if robot.status.is_charging:
+                if not is_charging:
+                    is_charging = True
+                    msg = 'Charging'
+                    self.q.put(msg)
+            elif not robot.status.is_charging:
+                if is_charging:
+                    is_charging = False
+                    msg = 'No longer charging'
+                    self.q.put(msg)
+
+            if robot.status.is_carrying_block:
+                if not is_carrying_block:
+                    is_carrying_block = True
+                    msg = 'Carrying block'
+                    self.q.put(msg)
+            elif not robot.status.is_carrying_block:
+                if is_carrying_block:
+                    is_carrying_block = False
+                    msg = 'No longer carrying block'
+                    self.q.put(msg)
+
+            if robot.status.is_button_pressed:
+                if not is_button_pressed:
+                    is_button_pressed = True
+                    msg = 'Button pressed'
+                    self.q.put(msg)
+            elif not robot.status.is_button_pressed:
+                if is_button_pressed:
+                    is_button_pressed = False
+                    msg = 'Button no longer pressed'
+                    self.q.put(msg)
+
+            if robot.status.is_falling:
+                delay = 0
+                if not is_falling:
+                    is_falling = True
+                    msg = 'Falling'
+                    self.q.put(msg)
+            elif is_falling and delay > 9:
+                is_falling = False
+                msg = 'No longer falling'
                 self.q.put(msg)
             elif delay <= 9:
                 delay += 1
 
-            if robot.is_falling:
-                if not is_falling:
-                    is_falling = True
-                    msg = 'cozmo.robot.Robot.is_falling: True'
+            if robot.status.is_docking_to_marker:
+                if not is_docking_to_marker:
+                    is_docking_to_marker = True
+                    msg = 'Docking to marker'
                     self.q.put(msg)
-            elif not robot.is_falling:
-                if is_falling:
-                    is_falling = False
-                    msg = 'cozmo.robot.Robot.is_falling: False'
+            elif not robot.status.is_docking_to_marker:
+                if is_docking_to_marker:
+                    is_docking_to_marker = False
+                    msg = 'No longer docking to marker'
                     self.q.put(msg)
 
-            if robot.is_on_charger:
-                if not is_on_charger:
-                    is_on_charger = True
-                    msg = 'cozmo.robot.Robot.is_on_charger: True'
+            if robot.status.is_in_calm_power_mode:
+                if not is_in_calm_power_mode:
+                    is_in_calm_power_mode = True
+                    msg = 'Calm power mode on'
                     self.q.put(msg)
-            elif not robot.is_on_charger:
-                if is_on_charger:
-                    is_on_charger = False
-                    msg = 'cozmo.robot.Robot.is_on_charger: False'
+            elif not robot.status.is_in_calm_power_mode:
+                if is_in_calm_power_mode:
+                    is_in_calm_power_mode = False
+                    msg = 'Calm power mode off'
+                    self.q.put(msg)
+
+            if robot.status.is_pathing:
+                if not is_pathing:
+                    is_pathing = True
+                    msg = 'Following a path'
+                    self.q.put(msg)
+            elif not robot.status.is_pathing:
+                if is_pathing:
+                    is_pathing = False
+                    msg = 'Stopped following a path'
                     self.q.put(msg)
 
             time.sleep(0.1)
-
 
 def print_prefix(evt):
     msg = evt.event_name + ' '
     return msg
 
 def print_object(obj):
-    if isinstance(obj,cozmo.objects.LightCube):
+    if isinstance(obj,anki_vector.objects.LightCube):
         cube_id = next(k for k,v in robot.world.light_cubes.items() if v==obj)
         msg = 'LightCube-' + str(cube_id)
     else:
         r = re.search('<(\w*)', obj.__repr__())
         msg = r.group(1)
     return msg
-
+"""
 def monitor_generic(evt, **kwargs):
     msg = print_prefix(evt)
     if 'behavior_type_name' in kwargs:
@@ -125,7 +222,6 @@ def monitor_face(evt, face, **kwargs):
     msg += name + ' face_id=' + str(face.face_id)
     q.put(msg)
 
-
 dispatch_table = {
   cozmo.action.EvtActionStarted        : monitor_generic,
   cozmo.action.EvtActionCompleted      : monitor_EvtActionCompleted,
@@ -147,11 +243,12 @@ excluded_events = {    # Occur too frequently to monitor by default
     cozmo.objects.EvtObjectObserved,
     cozmo.faces.EvtFaceObserved,
 }
+"""
 
 def monitor(_robot, _q, evt_class=None):
-    if not isinstance(_robot, cozmo.robot.Robot):
-        raise TypeError('First argument must be a Robot instance')
-    if evt_class is not None and not issubclass(evt_class, cozmo.event.Event):
+    if not isinstance(_robot, anki_vector.robot.Robot):
+        raise TypeError('First argument must be an AsyncRobot instance')
+    if evt_class is not None and not issubclass(evt_class, anki_vector.events.EventHandler):
         raise TypeError('Second argument must be an Event subclass')
     global robot
     global q
@@ -159,36 +256,37 @@ def monitor(_robot, _q, evt_class=None):
     robot = _robot
     q = _q
     thread_running = True
-    if evt_class in dispatch_table:
-        robot.world.add_event_handler(evt_class,dispatch_table[evt_class])
-    elif evt_class is not None:
-        robot.world.add_event_handler(evt_class,monitor_generic)
-    else:
-        for k,v in dispatch_table.items():
-            if k not in excluded_events:
-                robot.world.add_event_handler(k,v)
+
+    # if evt_class in dispatch_table:
+    #     robot.world.add_event_handler(evt_class,dispatch_table[evt_class])
+    # elif evt_class is not None:
+    #     robot.world.add_event_handler(evt_class,monitor_generic)
+    # else:
+    #     for k,v in dispatch_table.items():
+    #         if k not in excluded_events:
+    #             robot.world.add_event_handler(k,v)
     thread_is_state_changed = CheckState(1, 'ThreadCheckState', q)
     thread_is_state_changed.start()
 
 
 def unmonitor(_robot, evt_class=None):
-    if not isinstance(_robot, cozmo.robot.Robot):
+    if not isinstance(_robot, anki_vector.robot.Robot):
         raise TypeError('First argument must be a Robot instance')
-    if evt_class is not None and not issubclass(evt_class, cozmo.event.Event):
+    if evt_class is not None and not issubclass(evt_class, anki_vector.events.EventHandler):
         raise TypeError('Second argument must be an Event subclass')
     global robot
     global thread_running
     robot = _robot
     thread_running = False
 
-    try:
-        if evt_class in dispatch_table:
-            robot.world.remove_event_handler(evt_class,dispatch_table[evt_class])
-        elif evt_class is not None:
-            robot.world.remove_event_handler(evt_class,monitor_generic)
-        else:
-            for k,v in dispatch_table.items():
-                robot.world.remove_event_handler(k,v)
-    except Exception:
-        pass
+    # try:
+    #     if evt_class in dispatch_table:
+    #         robot.world.remove_event_handler(evt_class,dispatch_table[evt_class])
+    #     elif evt_class is not None:
+    #         robot.world.remove_event_handler(evt_class,monitor_generic)
+    #     else:
+    #         for k,v in dispatch_table.items():
+    #             robot.world.remove_event_handler(k,v)
+    # except Exception:
+    #     pass
 
