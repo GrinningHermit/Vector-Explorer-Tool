@@ -99,7 +99,7 @@ def run():
 
     args = util.parse_command_args()
 
-    with anki_vector.Robot(args.serial, enable_camera_feed=True) as robot:
+    with anki_vector.Robot(args.serial, enable_camera_feed=True, enable_face_detection=True) as robot:
         global animation_list
         global active_viewer
 
