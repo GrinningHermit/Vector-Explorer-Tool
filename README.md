@@ -1,4 +1,4 @@
-# Vector-Explorer-Tool v0.3
+# Vector-Explorer-Tool v0.3 (event monitoring)
 Interface exposing functionality of the robot Vector from Anki
 ---
 This tool gives control over Vector. You can look through his camera while using keyboard buttons or a game controller to control him. The event monitor helps in checking when he detects something, like seeing a cube or being picked up. It also lists and plays all built-in animations. 
