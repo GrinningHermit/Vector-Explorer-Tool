@@ -1,4 +1,4 @@
-# Vector-Explorer-Tool
+# Vector-Explorer-Tool V0.2
 Interface exposing functionality of the robot Vector from Anki
 ---
 This tool gives control over Vector. You can look through his camera while using keyboard buttons or a game controller to control him. It also lists and plays all built-in animations. 
