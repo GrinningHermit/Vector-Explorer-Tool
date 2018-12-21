@@ -10,7 +10,7 @@ This is a conversion of the Cozmo Explorer Tool (https://github.com/GrinningHerm
 Change log
 -
 - v0.3 Event monitoring
-- v0.2 HTML 5 compatible game controller
+- v0.2 Game controller
 - v0.1 Basic conversion from Cozmo Explorer Tool v0.5 
 
 What does it do exactly?
