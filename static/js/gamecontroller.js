@@ -97,9 +97,9 @@ function updateStatus() {
         // console.log('axis ' + i + ': ' + controller.axes[i]);
         // console.log(keyCode + " " + hasAlt + " " + hasShift);
         postHttpRequest("keydown", { keyCode, hasShift, hasCtrl, hasAlt });
-      } else if (controller.axes[i] == 0){
-          var k = (i+1) * 2;
-        for (j = k-2; j < k; j++) {
+      } else if (controller.axes[i] == 0) {
+        var k = (i + 1) * 2;
+        for (j = k - 2; j < k; j++) {
           if (stickReference[j][1] == 1) {
             keyCode = stickReference[j][0];
             stickReference[j][1] = 0;

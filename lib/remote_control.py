@@ -21,7 +21,6 @@ Code from example file is separated in 2 functionalities:
 
 import json
 from flask import Blueprint, request
-import cozmo
 
 
 remote_control = Blueprint('remote_control', __name__)
