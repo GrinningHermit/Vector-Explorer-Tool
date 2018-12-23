@@ -5,7 +5,7 @@ This tool gives control over Vector. You can look through his camera while using
 
 This is a conversion of the Cozmo Explorer Tool (https://github.com/GrinningHermit/Cozmo-Explorer-Tool) for the newer Anki robot Vector. This version is aimed at the alpha release of the Vector SDK and it may change completely over time.
 
-![Cozmo-Explorer-Tool](static/img/vector-explorer-tool-v0.1.jpg)
+![Cozmo-Explorer-Tool](static/img/vector-explorer-tool-v0.3.jpg)
 
 Change log
 -
