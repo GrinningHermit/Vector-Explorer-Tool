@@ -62,6 +62,8 @@ if flask_socketio_installed:
         while qval.qsize() > 0:
             timestamp = '{:%H:%M:%S.%f}'.format(datetime.datetime.now())
             message = qval.get()
+            message = message.replace('<','[')
+            message = message.replace('>',']')
             print(timestamp + ' -> ' + message)
             socketio.emit('my_response',
                 {'data': message, 'type': 'event', 'time': timestamp})

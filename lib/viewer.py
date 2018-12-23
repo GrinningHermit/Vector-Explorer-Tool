@@ -25,7 +25,6 @@ from io import BytesIO
 import logging
 from flask import request, make_response, send_file, Blueprint, Response
 from time import sleep
-import cozmo
 pil_installed = False
 try:
     from PIL import Image, ImageDraw, ImageFont

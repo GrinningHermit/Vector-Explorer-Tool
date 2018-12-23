@@ -16,7 +16,6 @@ Created by: GrinningHermit
 
 import json
 import time
-import cozmo
 
 from flask import Blueprint, request
 
@@ -50,32 +49,6 @@ def play_animation():
 
     return 'true'
 
-
-@animate.route('/play_trigger', methods=['POST'])
-def play_trigger():
-    # Handling of received trigger
-    global pose
-    trigger = json.loads(request.data.decode('utf-8'))
-    pose = robot.pose
-    robot.play_anim_trigger(getattr(cozmo.anim.Triggers, trigger)).wait_for_completed()
-    print('Trigger \'' + trigger + '\' started')
-    check_pose_return()
-
-    return 'true'
-
-
-@animate.route('/play_behavior', methods=['POST'])
-def play_behavior():
-    # Handling of received behavior
-    global pose
-    global action
-    behavior = json.loads(request.data.decode('utf-8'))
-    pose = robot.pose
-    action = [robot.start_behavior(getattr(cozmo.behavior.BehaviorTypes, behavior)), behavior]
-    print('Behavior \'' + behavior + '\' started')
-    return 'true'
-
-
 @animate.route('/stop', methods=['POST'])
 def stop():
     global action
@@ -93,7 +66,7 @@ def stop():
 def check_pose_return():
     if return_to_pose:
         # robot.go_to_pose(pose)
-        print('Cozmo returning to pose he had before animation started')
+        print('Vector returning to pose he had before animation started')
 
 def init_animate(_robot):
     global robot

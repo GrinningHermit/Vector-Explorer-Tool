@@ -1,14 +1,14 @@
 """
 
-Event Monitor for Cozmo
+Event Monitor for Vector
 ============================
 
-Based on Event Monitor for cozmo-tools:
+Created by: GrinningHermit
+
+Inspired by Event Monitor for cozmo-tools:
 https://github.com/touretzkyds/cozmo-tools
+Cozmo-tools created by: David S. Touretzky, Carnegie Mellon University
 
-Created by: David S. Touretzky, Carnegie Mellon University
-
-Edited by: GrinningHermit
 =====
 
 """
@@ -25,6 +25,16 @@ cube = None
 q = None # dependency on queue variable for messaging instead of printing to event-content directly
 thread_running = False # starting thread for custom events
 
+facial_expressions = [
+    '-unknown-',
+    'neutral',
+    'happiness',
+    'surprise',
+    'anger',
+    'sadness'
+]
+
+# Class for detecting robot states
 class CheckState (threading.Thread):
     def __init__(self, thread_id, name, _q):
         threading.Thread.__init__(self)
@@ -112,40 +122,31 @@ class CheckState (threading.Thread):
 
 def on_object_appearance(robot, event_type, event):
     print(event.obj)
-    name = type(event.obj).__name__
     msg = event_type.upper()[7:] + ' '
-
-    msg += name + ' <'
-
-    if name == 'Face':
-        msg += 'face_id: ' + str(event.obj.face_id)
-        if not event.obj.name == '':
-            msg += ' name: ' + event.obj.name
-        else:
-            msg += ' name: [unknown]'
-
-    if name == 'LightCube':
-        msg += 'object_id: ' + str(event.obj.object_id)
-
-    if name == 'Charger':
-        msg += 'object_id: ' + str(event.obj.object_id)
-
-    msg += '>'
-
+    msg += str(event.obj)
     q.put(msg)
 
 def on_object_actions(robot, event_type, event):
-    print(event)
+    # print(event)
     msg = event_type.upper()[7:] + ' LightCube ' 
-
+    msg += str(event)
     q.put(msg)
 
+def on_cube_connection(robot, event_type, event):
+    # print(event)
+    msg = event_type
+    q.put(msg)
+
+def on_wake_word(robot, event_type, event):
+    # print(event)
+    msg = event_type
+    q.put(msg)
 
 dispatch_table = {
     on_object_appearance                : [Events.object_appeared, Events.object_disappeared],
     on_object_actions                   : [Events.object_moved, Events.object_stopped_moving, Events.object_tapped, Events.object_up_axis_changed],
-    # on_cube_connection                : [Events.cube_connection_lost],
-    # on_wake_word                      : [Events.wake_word]
+    # on_cube_connection                  : [Events.cube_connection_lost],
+    # on_wake_word                        : [Events.wake_word]
 }
 
 excluded_events = []
@@ -180,6 +181,7 @@ class StartCubeConnection (threading.Thread):
             msg = f"{cube.descriptive_name}"
             self.q.put(msg)
             start_stop_event_listening(on_object_actions, 'start')
+            # start_stop_event_listening(on_cube_connection, 'start')
         elif count < 4:
             count = count + 1
             print('connecting cube failed, restarting: ' + str(count))
@@ -201,6 +203,7 @@ def monitor(_robot, _q):
     thread_is_state_changed = CheckState(1, 'ThreadCheckState', q)
     thread_is_state_changed.start()
     start_stop_event_listening(on_object_appearance, 'start')
+    # start_stop_event_listening(on_wake_word, 'start')
     thread_start_cube_connection = StartCubeConnection(2, 'ThreadCubeConnect', q)
     thread_start_cube_connection.start()
 
