@@ -31,7 +31,7 @@ What do you need to use it?
 3. A little knowledge about Python
 4. Knowledge of the Vector SDK (https://developer.anki.com/vector/docs)
 5. The files in this repository
-6. The python module Pillow. (pip3 install --user Pillow, usually already installed when working with the Cozmo SDK)
+6. The python module Pillow. (pip3 install --user Pillow, usually already installed when working with the Vector SDK)
 7. The python module Flask. (pip3 install --user flask)
 
 
