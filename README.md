@@ -10,7 +10,7 @@ This is a conversion of the Cozmo Explorer Tool (https://github.com/GrinningHerm
 
 Change log
 -
-- v0.4 Status info
+- v0.4 Status info (status overlay on camera and numerous small improvements)
 - v0.3 Event monitoring
 - v0.2 Game controller
 - v0.1 Basic conversion from Cozmo Explorer Tool v0.5 
