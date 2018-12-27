@@ -5,7 +5,6 @@ let isPlayingListID = null;
 let stopTimeOut;
 let socket;
 let imageInterval, mousedownInterval, mouseKeyCode, animateHTML;
-
 let currentTab = 'animations';
 
 if (typeof(anims_raw) == undefined) {
@@ -13,10 +12,10 @@ if (typeof(anims_raw) == undefined) {
 }
 
 if(anims_raw == ''){
-    // test data for running without Cozmo connected
-    anims_raw = 'anim_cozmo_test_01anim_cozmo_test_01,anim_cozmo_test_02,anim_cozmo_test_03,anim_cozmo_test_04,anim_cozmo_test_05,anim_more_test_01,anim_more_test_02,anim_more_test_03,anim_more_test_04,anim_more_test_01,anim_cozmo_test_01,anim_cozmo_test_02,anim_cozmo_test_03,anim_cozmo_test_04,anim_cozmo_test_05,anim_more_test_01,anim_more_test_02,anim_more_test_03,anim_more_test_04,anim_more_test_01,anim_cozmo_test_01,anim_cozmo_test_02,anim_cozmo_test_03,anim_cozmo_test_04,anim_cozmo_test_05,anim_more_test_01,anim_more_test_02,anim_more_test_03,anim_more_test_04,anim_more_test_01';
+    // test data for running without Vector connected
+    anims_raw = 'anim_vector_test_01anim_vector_test_01,anim_vector_test_02,anim_vector_test_03,anim_vector_test_04,anim_vector_test_05,anim_more_test_01,anim_more_test_02,anim_more_test_03,anim_more_test_04,anim_more_test_01,anim_vector_test_01,anim_vector_test_02,anim_vector_test_03,anim_vector_test_04,anim_vector_test_05,anim_more_test_01,anim_more_test_02,anim_more_test_03,anim_more_test_04,anim_more_test_01,anim_vector_test_01,anim_vector_test_02,anim_vector_test_03,anim_vector_test_04,anim_vector_test_05,anim_more_test_01,anim_more_test_02,anim_more_test_03,anim_more_test_04,anim_more_test_01';
     triggers_raw = 'TestTriggerClass01,TestTriggrClass02,TestTriggerClass03,TestTriggerClass04,TestTriggerClass05,TestTriggerClass06,TestTriggerClass07';
-    behaviors_raw = 'InCaseYouDidNotNotice,ThisIsTestData:,CozmoIsNotConnected';
+    behaviors_raw = 'InCaseYouDidNotNotice,ThisIsTestData:,VectorIsNotConnected';
 }
 
 
@@ -31,19 +30,28 @@ let animations = {
     list: stringSorting(anims_raw),
     str: '',
     active: 0,
-    info: 'A list of animations. Pick an animation from the list and click the play button to animate Cozmo.<br/><br/>For copying to clipboard:<br/>A.) use the copy button, OR<br/>B.) select a line of text and press Ctrl-C'};
+    info: 'A list of animations. Pick an animation from the list and click the play button to animate Vector.<br/><br/>For copying to clipboard:<br/>A.) use the copy button, OR<br/>B.) select a line of text and press Ctrl-C'
+};
 let triggers = {
     name: 'triggers',
     list: stringSorting(triggers_raw),
     str: '',
     active: 0,
-    info: 'A list of animation sets. This differs from the Animation list in that each time you press the same animation from the list, it may play out slightly different. This offers letiety: it makes Cozmo seem more alive if you use triggers in your own code.<br/><br/>For copying to clipboard:<br/>A.) use the copy button, OR<br/>B.) select a line of text and press Ctrl-C'};
+    info: 'A list of animation sets. This differs from the Animation list in that each time you press the same animation from the list, it may play out slightly different. This offers letiety: it makes Vector seem more alive if you use triggers in your own code.<br/><br/>For copying to clipboard:<br/>A.) use the copy button, OR<br/>B.) select a line of text and press Ctrl-C'
+};
 let behaviors = {
     name: 'behaviors',
     list: stringSorting(behaviors_raw),
     str: '',
     active: 0,
-    info: 'A list of behaviors. Behaviors represent a task that Cozmo may perform for an indefinite amount of time. Animation Explorer limits active time to 30 seconds. You can abort by pressing the \'stop\' button.<br/><br/>For copying to clipboard:<br/>A.) use the copy button, OR<br/>B.) select a line of text and press Ctrl-C'};
+    info: 'A list of behaviors. Behaviors represent a task that Vector may perform for an indefinite amount of time. Animation Explorer limits active time to 30 seconds. You can abort by pressing the \'stop\' button.<br/><br/>For copying to clipboard:<br/>A.) use the copy button, OR<br/>B.) select a line of text and press Ctrl-C'
+};
+
+let os_information = []
+
+if (os_info != '') {
+    os_information = stringSorting(os_info);
+}
 
 let listArray = [animations, triggers, behaviors];
 
@@ -393,6 +401,16 @@ function handleKeyActivity (e, actionType)
             }
         }
         postHttpRequest(actionType, {keyCode, hasShift, hasCtrl, hasAlt});
+        let command =  {
+            actionType, 
+            keyCode,
+            hasShift,
+            hasCtrl,
+            hasAlt
+        }
+        command = JSON.stringify(command);
+        console.log(command);
+        socket.emit('json_key_command', command);
     }
 }
 
@@ -557,8 +575,17 @@ let toggleViewerVisible = function(){
     }
 };
 
+let createInfo = function () {
+    if (os_information != [] && !'undefined') {
+        $('#info').append('name: ' + os_information[2] + '<br>ip: ' + os_information[1] + '<br>os: ' + os_information[0]);
+    }
+}
+
 /*** INITIALIZATION ***/
 $( function () {
+
+    // display Vector OS info
+    createInfo();
 
     // creating list of cozmo animations (active tab)
     animateHTML = document.querySelector('link[rel="import"]');
@@ -637,13 +664,6 @@ $( function () {
     // create and place buttons for cozmo control
     initControlButtons();
 
-    // start camera image stream
-    if(hasPillow == 'True') {
-        document.getElementById("cozmoImageId").src = "vectorImage";
-    } else {
-        console.log('no stream without Pillow')
-    };
-
     // clicking on camera image pauses stream
 /*    $('#cozmoImageId').click(function () {
         if($('#cozmoImageId').hasClass('stopped')){
@@ -696,16 +716,29 @@ $( function () {
     // checks if the python module flasksocket-io is installed.
     // If not, event monitoring will not work and an message appears in the event monitor section.
     if(hasSocketIO == 'True') {
-        init_websocket();
+        socket = init_websocket();
     } else {
         $('#event-content').append('<li style="background-color: lightcoral">flask-socketio not installed, event monitoring only visible on python console or terminal window</li>');
     }
 
-    if(hasPillow == 'False'){
-        toggleViewerVisible();
+    if(activeRobot == 'None'){
+        // toggleViewerVisible();
         $('#viewer-content img').remove();
-        $('#event-content').append('<li style="background-color: lightcoral">pillow not installed, no camera video available. Check python console for installation instructions.</li>');
+        $('#viewer-bg').append('<span style="display: block; padding: 160px 0 0 0">No Vector detected</span>')
+        $('#event-content').append('<li style="background-color: lightcoral">No Vector robot detected. Application working in test mode.</li>');
+    } else {
+        if(hasPillow == 'False'){
+            // installed pillow needed to show camera feed
+            toggleViewerVisible();
+            $('#viewer-content img').remove();
+            $('#event-content').append('<li style="background-color: lightcoral">Pillow not installed, no camera video available. Check python console for installation instructions.</li>');
+        } else if (hasPillow == 'True'){
+            // start camera image stream
+            document.getElementById("cozmoImageId").src = "vectorImage";
+        }
+        $('#event-content').append('<li style="background-color: lightcoral">Displaying events, like Vector seeing a cube or picking him up.</li>');
     }
+
 
     document.addEventListener("keydown", function(e) { handleKeyActivity(e, "keydown") } );
     document.addEventListener("keyup",   function(e) { handleKeyActivity(e, "keyup") } );

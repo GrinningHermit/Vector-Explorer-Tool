@@ -358,11 +358,11 @@ button:focus {
     z-index: 9994;
 }
 
-.hermit {
+#info {
     float: right;
     font-size: .6em;
     color: #999999;
-    margin: 25px 10px 0 0;
+    margin: 21px 10px 0 0;
     text-align: right;
     line-height: 14px;
     font-size: 12px;
@@ -658,6 +658,9 @@ button:focus {
 #viewer-bg {
     width: 640px;
     height: 360px;
+    text-align: center;
+    font-weight: bold;
+    color: rgba(0,0,0,.2);
 }
 
 .black-bg {

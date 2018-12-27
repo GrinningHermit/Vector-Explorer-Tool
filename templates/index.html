@@ -5,23 +5,30 @@
 
     <title>Cozmo Explorer Tool</title>
 
+    <link rel="f" type="image/png" href="/static/img/16.png" sizes="16x16">
+    <link rel="icon" type="image/png" href="/static/img/32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="/static/img/64.png" sizes="64x64">
+    <link rel="icon" type="image/png" href="/static/img/128.png" sizes="128x128">
+
     <link rel="stylesheet" href="../static/css/jquery-ui.css?q={{ randomID }}">
     <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
 
     <script type=text/javascript>
         let $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+        let activeRobot = '{{ activeRobot }}';
         let anims_raw = '{{ animations }}';
         let triggers_raw = '{{ triggers }}';
         let behaviors_raw = '{{ behaviors }}';
         let hasSocketIO = '{{ hasSocketIO }}';
         let hasPillow = '{{ hasPillow }}';
+        let os_info = '{{ osInfo }}'
     </script>
     <script src="../static/js/jquery-1.12.4.min.js"></script>
     <script src="../static/js/jquery-ui-1.12.1.min.js"></script>
     <script src="../static/js/jquery.ui.touch-punch.min.js"></script>
     <script src="../static/js/socket.io-1.3.5.min.js"></script>
-    <script src="../static/js/event-monitor.js?q={{ randomID }}"></script>
+    <script src="../static/js/websocket.js?q={{ randomID }}"></script>
     <script src="../static/js/gamecontroller.js?q={{ randomID }}"></script>
     <script src="../static/js/engine.js?q={{ randomID }}"></script>
     <link rel="stylesheet" href="../static/css/cozmo_animation_list.css?q={{ randomID }}">
@@ -38,7 +45,7 @@
             <div class="v-align">
                 <img src="../static/img/vector-logo-white-hp.svg" class="logo" height="30" width="147">Explorer Tool
             </div>
-            <div class="hermit">created by <br/><a href="https://forums.anki.com/users/grinninghermit/summary">GrinningHermit</a></div>
+            <div id="info"></div>
         </div>
     </div>
     <div id="content">
@@ -53,7 +60,7 @@
                 </div>#}
                 <div id="viewer-content">
                     <div id="viewer-bg" class="black-bg"></div>
-                    <img src="cozmoImage" id="cozmoImageId">
+                    <img src="vectorImage" id="cozmoImageId">
                     <div id="controls">
                         <div id="button-bg" class="black-bg"></div>
                         <i id="controls-info-btn" class="info-btn fa fa-align-left"></i>
