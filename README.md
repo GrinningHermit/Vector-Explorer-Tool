@@ -1,8 +1,8 @@
 
-# Vector-Explorer-Tool v0.3 (event monitoring)
+# Vector-Explorer-Tool v0.4 (status info)
 Interface exposing functionality of the robot Vector from Anki
 ---
-This tool gives control over Vector. You can look through his camera while using keyboard buttons or a game controller to control him. The event monitor helps in checking when he detects something, like seeing a cube or being picked up. It also lists and plays all built-in animations. 
+This tool gives control over Vector. You can look through his camera while using keyboard buttons or a game controller to control him. The event monitor helps in checking when he detects something, like seeing a cube or being picked up. It also lists and plays all built-in animations. Overlaying the camera view is optional status information about the robot.
 
 This is a conversion of the Cozmo Explorer Tool (https://github.com/GrinningHermit/Cozmo-Explorer-Tool) for the newer Anki robot Vector. This version is aimed at the alpha release of the Vector SDK and it may change completely over time.
 
@@ -10,6 +10,7 @@ This is a conversion of the Cozmo Explorer Tool (https://github.com/GrinningHerm
 
 Change log
 -
+- v0.4 Status info
 - v0.3 Event monitoring
 - v0.2 Game controller
 - v0.1 Basic conversion from Cozmo Explorer Tool v0.5 
