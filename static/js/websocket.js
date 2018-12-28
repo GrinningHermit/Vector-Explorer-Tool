@@ -14,7 +14,37 @@ init_websocket = function() {
 
     socket.on('state_info', function (msg) {
         // console.log(msg.data);
-        $('#viewer-bg').html(msg.data);
+        if (debug_annotation_state == 1) {
+            $('#viewer-bg').html(
+                '<ul class="state-info" style="text-align: right">' +
+                '<li>Position</li>' +
+                '<li>Quaternion</li>' +
+                '<li>Z Angle</li>' +
+                '<li>Accelerometer</li>' +
+                '<li>Gyroscope</li>' +
+                '<li>Head Angle</li>' +
+                '<li>Lift Height</li>' +
+                '<li>Left Wheel</li>' +
+                '<li>Right Wheel</li>' +
+                '<li>Proximity Sensor</li>' +
+                '</ul>' +
+
+                '<ul class="state-info" style="left: 100px">' + 
+                '<li>' + msg.position + '</li>' +
+                '<li>' + msg.quaternion + '</li>' +
+                '<li>' + msg.angle_z + '</li>' +
+                '<li>' + msg.accel + '</li>' +
+                '<li>' + msg.gyro + '</li>' +
+                '<li>' + msg.head + '</li>' +
+                '<li>' + msg.lift + '</li>' +
+                '<li>' + msg.l_wheel + '</li>' +
+                '<li>' + msg.r_wheel + '</li>' +
+                '<li>' + msg.proximity + '</li>' +
+                '</ul>'
+                );
+        } else if (debug_annotation_state == 2) {
+            $('#viewer-bg').html('');
+        }
     });
 
     socket.onclose = function(event){

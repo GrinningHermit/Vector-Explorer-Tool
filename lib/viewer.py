@@ -23,6 +23,7 @@ import json
 import io
 from io import BytesIO
 import logging
+import math
 from flask import request, make_response, send_file, Blueprint, Response
 from time import sleep
 pil_installed = False
@@ -40,6 +41,7 @@ DEBUG_ANNOTATIONS_ENABLED_ALL = 2
 
 robot = None
 vectorEnabled = False
+show_state_info = True
 
 """
 # Annotator for displaying RobotState (position, etc.) on top of the camera feed
@@ -137,6 +139,29 @@ def is_microsoft_browser(req):
     agent = req.user_agent.string
     return 'Edge/' in agent or 'MSIE ' in agent or 'Trident/' in agent
 
+
+def update_state_info(socketio):
+    if show_state_info:
+        prox = 'not available'
+        try:
+            prox = '%.3f mm' % robot.proximity.last_valid_sensor_reading.distance.distance_mm
+        except:
+            pass
+        socketio.emit('state_info', {
+            'type': 'event', 
+            'position': 'X %.1f Y %.1f Z %.1f' % robot.pose.position.x_y_z, 
+            'quaternion': 'q0 %.1f q1 %.1f q2 %.1f q3 %.1f' % robot.pose.rotation.q0_q1_q2_q3, 
+            'angle_z': '%.1f\u00b0' % robot.pose.rotation.angle_z.degrees,
+            'accel': 'X %.1f Y %.1f Z %.1f' % robot.accel.x_y_z,
+            'gyro': 'X %.1f Y %.1f Z %.1f' % robot.gyro.x_y_z,
+            'head': '%.2f\u00b0' % math.degrees(robot.head_angle_rad),
+            'lift': '%.2f mm/s' % robot.lift_height_mm,
+            'l_wheel': '%.3f mm/s' % robot.left_wheel_speed_mmps,
+            'r_wheel': '%.3f mm/s' % robot.right_wheel_speed_mmps,
+            'proximity': prox
+        })
+
+
 @viewer.route("/vectorImage")
 def handle_vectorImage():
     if vectorEnabled and pil_installed:
@@ -160,6 +185,12 @@ def handle_setAreDebugAnnotationsEnabled():
         print('TO DO: annotations off')
         # robot.world.image_annotator.annotation_enabled = False
         # robot.world.image_annotator.disable_annotator('robotState')
+    return ""
+
+@viewer.route('/show_state_info', methods=['POST'])
+def handle_show_state_info():
+    global show_state_info
+    show_state_info = not show_state_info
     return ""
 
 

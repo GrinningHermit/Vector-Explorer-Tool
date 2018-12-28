@@ -6,6 +6,7 @@ let stopTimeOut;
 let socket;
 let imageInterval, mousedownInterval, mouseKeyCode, animateHTML;
 let currentTab = 'animations';
+let debug_annotation_state = 1;
 
 if (typeof(anims_raw) == undefined) {
     anims_raw = '';
@@ -693,18 +694,20 @@ $( function () {
         // $('#controls').hide();
     });
 
-    // button with left aligned lines toggles pose and accellerometer info.
+    // button with left aligned lines toggles pose and accelerometer info.
     // By default turned on.
     $('#controls-info-btn').click(function () {
-        let debug_annotation_state;
         if($('#controls-info-btn').hasClass('info-btn-active')){
             $('#controls-info-btn').removeClass('info-btn-active');
-            debug_annotation_state = 2;
+            // debug_annotation_state = 2;
+            $('.state-info').css("visibility", "hidden");
         } else {
             $('#controls-info-btn').addClass('info-btn-active');
-            debug_annotation_state = 1;
+            // debug_annotation_state = 1;
+            $('.state-info').css("visibility", "visible");
         }
-        postHttpRequest("setAreDebugAnnotationsEnabled", {areDebugAnnotationsEnabled: debug_annotation_state})
+        postHttpRequest("show_state_info");
+        // postHttpRequest("setAreDebugAnnotationsEnabled", {areDebugAnnotationsEnabled: debug_annotation_state})
     });
 
     // button with expand arrows toggles full screen camera mode.

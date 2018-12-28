@@ -595,7 +595,6 @@ button:focus {
     right: 50px;
     background-color: rgba(255,255,255,1);
     color: rgba(0,0,0,1);
-    visibility: hidden;
 }
 
 #controls-fullscr-btn {
@@ -661,6 +660,17 @@ button:focus {
     text-align: center;
     font-weight: bold;
     color: rgba(0,0,0,.2);
+}
+
+.state-info {
+    position: absolute;
+    font-size: 12px;
+    color: rgba(255,255,255,.8);
+    text-shadow: 1px 1px #000000;
+    text-align: left;
+    list-style-type: none;
+    margin: 4px;
+    padding: 0;
 }
 
 .black-bg {

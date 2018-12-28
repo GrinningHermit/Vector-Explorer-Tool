@@ -9,7 +9,7 @@ import queue
 from lib.event_monitor import monitor
 from lib import flask_socket_helpers
 from lib.animate import animate, init_animate
-from lib.viewer import viewer, activate_viewer_if_enabled, create_default_image
+from lib.viewer import viewer, activate_viewer_if_enabled, create_default_image, update_state_info
 from lib.remote_control import remote_control, activate_controls
 
 try:
@@ -71,28 +71,12 @@ if flask_socketio_installed:
                 {'data': message, 'type': 'event', 'time': timestamp})
 
 
-    def update_state_info():
-        socketio.emit('state_info', {
-            'type': 'event', 
-            'position': 'X %.1f Y %.1f Z %.1f' % robot.pose.position.x_y_z, 
-            'quaternion': 'angle_z %.1f<br>' % robot.pose.rotation.angle_z.degrees, 
-            'angle_z': 'angle_z %.1f<br>' % robot.pose.rotation.angle_z.degrees,
-            'accel': 'Accel: <%.1f, %.1f, %.1f' % robot.accel.x_y_z,
-            'gyro': 'Gyro: <%.1f, %.1f, %.1f' % robot.gyro.x_y_z,
-            'head': 'Lift: height = %.1f' % robot.lift_height_mm,
-            'lift': 'lWheel: %.3f mm/s' % robot.left_wheel_speed_mmps,
-            'l_wheel': 'lWheel: %.3f mm/s' % robot.left_wheel_speed_mmps,
-            'r_wheel': 'rWheel: %.3f mm/s' % robot.right_wheel_speed_mmps,
-            'proximity': 'Range: %.3f mm' % robot.proximity.last_valid_sensor_reading.distance.distance_mm
-        })
-
-
     def background_thread(qval):
         while True:
             if not qval.empty():
                 print_queue(qval)
             if not robot == None:
-                update_state_info()
+                update_state_info(socketio)
             socketio.sleep(.1)
 
 
