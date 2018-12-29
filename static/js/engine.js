@@ -434,7 +434,7 @@ let initControlButtons = function(){
     ];
 
     let toggleButtons = [
-        ['I', 567, 37],  // IR light toggle
+        // ['I', 567, 37],  // IR light toggle
         ['P', 567, 120]  // Free Play toggle
     ];
 
@@ -449,15 +449,15 @@ let initControlButtons = function(){
         btn.mousedown(function(){
             mouseKeyCode = $(this).attr('id').charCodeAt(9);
             $(this).addClass('control-button-active');
-/*
-            mousedownInterval = setInterval(function(){
-                console.log(mouseKeyCode);
-                postHttpRequest('keydown', {keyCode: mouseKeyCode, hasShift:0, hasCtrl:0, hasAlt:0})
-            }, 100);
-*/
+            // mousedownInterval = setInterval(function(){
+            //     console.log(mouseKeyCode);
+            //     postHttpRequest('keydown', {keyCode: mouseKeyCode, hasShift:0, hasCtrl:0, hasAlt:0})
+            // }, 100);
         });
         btn.mouseup(function(){
-            clearInterval(mousedownInterval);
+            mouseKeyCode = $(this).attr('id').charCodeAt(9);
+            // postHttpRequest('keyup', {keyCode: mouseKeyCode, hasShift:0, hasCtrl:0, hasAlt:0})
+            // clearInterval(mousedownInterval);
             $(this).removeClass('control-button-active');
         });
         btn.mouseleave(function () {
@@ -697,17 +697,17 @@ $( function () {
     // button with left aligned lines toggles pose and accelerometer info.
     // By default turned on.
     $('#controls-info-btn').click(function () {
+        let toggle;
         if($('#controls-info-btn').hasClass('info-btn-active')){
             $('#controls-info-btn').removeClass('info-btn-active');
-            // debug_annotation_state = 2;
-            $('.state-info').css("visibility", "hidden");
+            $('#viewer-bg').css("visibility", "hidden");
+            toggle = false;
         } else {
             $('#controls-info-btn').addClass('info-btn-active');
-            // debug_annotation_state = 1;
-            $('.state-info').css("visibility", "visible");
+            $('#viewer-bg').css("visibility", "visible");
+            toggle = true;
         }
-        postHttpRequest("show_state_info");
-        // postHttpRequest("setAreDebugAnnotationsEnabled", {areDebugAnnotationsEnabled: debug_annotation_state})
+        postHttpRequest("show_state_info", {infoToggle: toggle});
     });
 
     // button with expand arrows toggles full screen camera mode.

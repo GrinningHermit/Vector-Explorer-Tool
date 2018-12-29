@@ -57,5 +57,4 @@ Compatibility
 Known issues
 -
 - Triggers and behaviors (features of the Cozmo explorer tool) are disabled due to SDK differences with the Cozmo SDK. They may be implemented when the Vector SDK starts supporting these features.
-- IR light is something Vector does not have and needs to be removed in a future release. 
 - Free play button needs to be fixed.
