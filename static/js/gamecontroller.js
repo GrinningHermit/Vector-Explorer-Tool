@@ -1,6 +1,7 @@
 var haveEvents = "ongamepadconnected" in window;
 var controllers = {};
 var buttons = [];
+
 var mappingReference = [
   //  [keyCode, active true/false] - controller btn name - mapping
   [0, 0], // A
@@ -23,14 +24,14 @@ var mappingReference = [
 ];
 
 var stickReference = [
-  [65, 0],
-  [68, 0],
-  [87, 0],
-  [83, 0],
-  [82, 0],
-  [70, 0],
-  [81, 0],
-  [69, 0]
+  [65, 0], // A left
+  [68, 0], // D right
+  [87, 0], // W forward
+  [83, 0], // S back
+  [82, 0], // R arm up
+  [70, 0], // F arm down
+  [81, 0], // Q head up
+  [69, 0]  // E head down
 ];
 
 function connecthandler(e) {

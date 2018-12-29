@@ -23,6 +23,7 @@ import json
 import io
 from io import BytesIO
 import logging
+import math
 from flask import request, make_response, send_file, Blueprint, Response
 from time import sleep
 pil_installed = False
@@ -34,44 +35,9 @@ except ImportError:
 
 viewer = Blueprint('viewer', __name__)
 
-DEBUG_ANNOTATIONS_DISABLED = 0
-DEBUG_ANNOTATIONS_ENABLED_VISION = 1
-DEBUG_ANNOTATIONS_ENABLED_ALL = 2
-
 robot = None
 vectorEnabled = False
-
-"""
-# Annotator for displaying RobotState (position, etc.) on top of the camera feed
-class RobotStateDisplay(cozmo.annotate.Annotator):
-    def apply(self, image, scale):
-        d = ImageDraw.Draw(image)
-
-        bounds = [10, 5, image.width, image.height]
-        bounds_shadow = [10, 6, image.width, image.height]
-        font = ImageFont.truetype('static/fonts/LiberationSans-Bold.ttf', 15)
-        def print_line(text_line):
-            shadow = cozmo.annotate.ImageText(text_line, position=cozmo.annotate.TOP_LEFT, color='#000000', font=font)
-            shadow.render(d, bounds_shadow)
-            text = cozmo.annotate.ImageText(text_line, position=cozmo.annotate.TOP_LEFT, color='#ffffff', font=font)
-            text.render(d, bounds)
-            TEXT_HEIGHT = 15
-            bounds[1] += TEXT_HEIGHT
-            bounds_shadow[1] += TEXT_HEIGHT
-
-        # Display the Pose info for the robot
-
-        pose = robot.pose
-        print_line('Pose: Pos = <%.1f, %.1f, %.1f>' % pose.position.x_y_z)
-        print_line('Pose: Rot quat = <%.1f, %.1f, %.1f, %.1f>' % pose.rotation.q0_q1_q2_q3)
-        print_line('Pose: angle_z = %.1f' % pose.rotation.angle_z.degrees)
-        print_line('Pose: origin_id: %s' % pose.origin_id)
-
-        # Display the Accelerometer and Gyro data for the robot
-
-        print_line('Accelmtr: <%.1f, %.1f, %.1f>' % robot.accelerometer.x_y_z)
-        print_line('Gyro: <%.1f, %.1f, %.1f>' % robot.gyro.x_y_z)
-"""
+show_state_info = True
 
 
 def stream_video(streaming_function):
@@ -112,7 +78,6 @@ def create_default_image(image_width, image_height, do_gradient=False):
 
 if pil_installed:
     _default_camera_image = create_default_image(640, 360)
-    _display_debug_annotations = DEBUG_ANNOTATIONS_ENABLED_ALL
 
 
 def get_annotated_image():
@@ -137,6 +102,29 @@ def is_microsoft_browser(req):
     agent = req.user_agent.string
     return 'Edge/' in agent or 'MSIE ' in agent or 'Trident/' in agent
 
+
+def update_state_info(socketio):
+    if show_state_info:
+        prox = 'not available'
+        try:
+            prox = '%.3f mm' % robot.proximity.last_valid_sensor_reading.distance.distance_mm
+        except:
+            pass
+        socketio.emit('state_info', {
+            'type': 'event', 
+            'position': 'X %.1f Y %.1f Z %.1f' % robot.pose.position.x_y_z, 
+            'quaternion': 'q0 %.1f q1 %.1f q2 %.1f q3 %.1f' % robot.pose.rotation.q0_q1_q2_q3, 
+            'angle_z': '%.1f\u00b0' % robot.pose.rotation.angle_z.degrees,
+            'accel': 'X %.1f Y %.1f Z %.1f' % robot.accel.x_y_z,
+            'gyro': 'X %.1f Y %.1f Z %.1f' % robot.gyro.x_y_z,
+            'head': '%.2f\u00b0' % math.degrees(robot.head_angle_rad),
+            'lift': '%.2f mm/s' % robot.lift_height_mm,
+            'l_wheel': '%.3f mm/s' % robot.left_wheel_speed_mmps,
+            'r_wheel': '%.3f mm/s' % robot.right_wheel_speed_mmps,
+            'proximity': prox
+        })
+
+
 @viewer.route("/vectorImage")
 def handle_vectorImage():
     if vectorEnabled and pil_installed:
@@ -146,20 +134,11 @@ def handle_vectorImage():
     return ''
 
 
-@viewer.route('/setAreDebugAnnotationsEnabled', methods=['POST'])
-def handle_setAreDebugAnnotationsEnabled():
-    # Called from Javascript whenever debug-annotations mode is toggled
+@viewer.route('/show_state_info', methods=['POST'])
+def handle_show_state_info():
     message = json.loads(request.data.decode("utf-8"))
-    global _display_debug_annotations
-    _display_debug_annotations = message['areDebugAnnotationsEnabled']
-    if _display_debug_annotations == DEBUG_ANNOTATIONS_ENABLED_ALL:
-        print('TO DO: annotations on')
-        # robot.world.image_annotator.annotation_enabled = True
-        # robot.world.image_annotator.enable_annotator('robotState')
-    else:
-        print('TO DO: annotations off')
-        # robot.world.image_annotator.annotation_enabled = False
-        # robot.world.image_annotator.disable_annotator('robotState')
+    global show_state_info
+    show_state_info = message['infoToggle']
     return ""
 
 

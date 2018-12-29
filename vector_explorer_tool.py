@@ -9,7 +9,7 @@ import queue
 from lib.event_monitor import monitor
 from lib import flask_socket_helpers
 from lib.animate import animate, init_animate
-from lib.viewer import viewer, activate_viewer_if_enabled, create_default_image
+from lib.viewer import viewer, activate_viewer_if_enabled, create_default_image, update_state_info
 from lib.remote_control import remote_control, activate_controls
 
 try:
@@ -22,9 +22,11 @@ app.register_blueprint(animate)
 app.register_blueprint(viewer)
 app.register_blueprint(remote_control)
 
+robot = None
 async_mode = 'threading'
 thread = None
 rndID = random.randrange(1000000000, 9999999999)
+os_info = ''
 animation_list = ''
 q = queue.Queue()
 active_viewer = False
@@ -65,7 +67,7 @@ if flask_socketio_installed:
             message = message.replace('<','[')
             message = message.replace('>','] ')
             print(timestamp + ' -> ' + message)
-            socketio.emit('my_response',
+            socketio.emit('event_monitor',
                 {'data': message, 'type': 'event', 'time': timestamp})
 
 
@@ -73,6 +75,8 @@ if flask_socketio_installed:
         while True:
             if not qval.empty():
                 print_queue(qval)
+            if not robot == None:
+                update_state_info(socketio)
             socketio.sleep(.1)
 
 
@@ -81,7 +85,18 @@ if flask_socketio_installed:
         global thread
         if thread is None:
             thread = socketio.start_background_task(background_thread, q)
-        emit('my_response', {'data': 'SERVER: websocket connection established. Displaying events, like  Vector seeing a cube or picking him up.'})
+        emit('event_monitor', {'data': 'SERVER: Websocket connection established.'})
+        print('Websocket connection established')
+
+
+    @socketio.on('disconnect')
+    def test_disconnect():
+        print('Websocket connection closed')
+
+
+    @socketio.on('json_key_command')
+    def handle_key_command(json):
+        print('received json: ' + str(json))
 
 
 def start_server():
@@ -93,18 +108,29 @@ def start_server():
 
 @app.route('/')
 def index():
-    return render_template('index.html', randomID=rndID, animations=animation_list, triggers='', behaviors='', hasSocketIO=flask_socketio_installed,hasPillow=active_viewer)
+    return render_template(
+        'index.html',
+        activeRobot=str(robot), 
+        randomID=rndID, 
+        animations=animation_list, 
+        triggers='', 
+        behaviors='', 
+        hasSocketIO=flask_socketio_installed,
+        hasPillow=active_viewer,
+        osInfo=os_info
+    )
 
 
 def run():
-    # flask_socket_helpers.run_flask(socketio, app)
-
     args = util.parse_command_args()
+    global robot
 
     with anki_vector.Robot(args.serial, enable_camera_feed=True, enable_custom_object_detection=True, enable_face_detection=True) as robot:
         global animation_list
         global active_viewer
+        global os_info
 
+        os_info = robot.conn.name + ',' + robot.conn.host + ',' + robot.get_version_state().os_version
         animation_list = init_animate(robot) # list of animations
         active_viewer = activate_viewer_if_enabled(robot) # camera and keyboard controls
         monitor(robot, q) # event monitor
@@ -116,6 +142,9 @@ if __name__ == '__main__':
     try:
         run()
     except KeyboardInterrupt as e:
-        pass
+        sys.exit("Program aborted: %s" % e)
+    except anki_vector.exceptions.VectorNotFoundException as e:
+        # Test server mode without active Vector
+        start_server()
     except anki_vector.exceptions.VectorConnectionException as e:
         sys.exit("A connection error occurred: %s" % e)
