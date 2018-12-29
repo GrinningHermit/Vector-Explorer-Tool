@@ -577,14 +577,15 @@ let toggleViewerVisible = function(){
 };
 
 let createInfo = function () {
-    if (os_information != [] && !'undefined') {
+    console.log(os_information);
+    if (os_information != []) {
+        console.log(os_information);
         $('#info').append('name: ' + os_information[2] + '<br>ip: ' + os_information[1] + '<br>os: ' + os_information[0]);
     }
 }
 
 /*** INITIALIZATION ***/
 $( function () {
-
     // display Vector OS info
     createInfo();
 
