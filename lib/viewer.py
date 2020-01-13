@@ -87,7 +87,7 @@ def get_annotated_image():
     if image is None:
         return _default_camera_image
 
-    return image
+    return image.annotate_image()
 
 
 def serve_single_image():
@@ -175,6 +175,7 @@ def activate_viewer_if_enabled(_robot):
         # robot.world.image_annotator.add_annotator('robotState', RobotStateDisplay)
         # Turn on image receiving by the camera
         vectorEnabled = True
+        robot.camera.init_camera_feed()
         return True
     else:
         return False

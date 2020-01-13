@@ -125,7 +125,7 @@ def run():
     args = util.parse_command_args()
     global robot
 
-    with anki_vector.Robot(args.serial, enable_camera_feed=True, enable_custom_object_detection=True, enable_face_detection=True) as robot:
+    with anki_vector.Robot(args.serial, enable_custom_object_detection=True, enable_face_detection=True) as robot:
         global animation_list
         global active_viewer
         global os_info
